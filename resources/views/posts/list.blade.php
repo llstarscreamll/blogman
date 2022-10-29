@@ -32,7 +32,7 @@
                                         <td>
                                             <form action="{{ route('posts.destroy', ['post' => $post->id]) }}" method="POST">
                                                 @method('DELETE') @csrf
-                                                <button type="submit">Delete</button>
+                                                <button type="submit" class="btn">Delete</button>
                                             </form>
                                         </td>
                                     </tr>
