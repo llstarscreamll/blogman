@@ -46,9 +46,9 @@
                                 <label for="type" class="col-md-4 col-form-label text-md-right">{{ __('Type') }}</label>
 
                                 <div class="col-md-6">
-                                    <input id="type" type="text" class="form-control{{ $errors->has('type') ? ' is-invalid' : '' }}" name="type" value="{{ old('type', $user->type) }}" required autofocus>
+                                    <input id="type" type="text" class="form-control{{ $errors->has('type') ? ' is-invalid' : '' }}" name="type" value="{{ old('type', $user->type) }}" list="types" required autofocus>
 
-                                    <datalist id="type">
+                                    <datalist id="types">
                                         <option value="{{ \App\User::BLOGGER_TYPE }}">
                                         <option value="{{ \App\User::SUPERVISOR_TYPE }}">
                                         <option value="{{ \App\User::ADMIN_TYPE }}">
