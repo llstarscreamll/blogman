@@ -8,6 +8,10 @@
                     <div class="card-header">Users</div>
 
                     <div class="card-body">
+                        <div>
+                            <a href="{{ route('users.create') }}">Add user</a>
+                        </div>
+
                         <table>
                             <thead>
                                 <tr>
