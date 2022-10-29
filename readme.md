@@ -6,11 +6,17 @@ Blog creation and management application with users administration and roles.
 
 -   [x] Users authentication
 -   [x] Users registration
+-   [ ] Default admin account
 -   [x] Users management, CRUD actions and:
     -   [ ] filter users by type
     -   [ ] batch assign "Blogger"s to "Supervisor"s
 -   [ ] Supervisors page to list out all the "Supervisor" users and the "Blogger" users that are under them
--   [ ] Dashboard page with count of posts, users count by type, authenticated user details, last login date and update details
+-   [x] Dashboard page with:
+    -   [x] count of posts
+    -   [x] users count by type
+    -   [x] authenticated user details
+    -   [x] last login date
+    -   [ ] update details
 -   [x] Posts management, CRUD actions
 -   [ ] Users ACL:
     -   [ ] Blogger (default):
@@ -27,4 +33,3 @@ Blog creation and management application with users administration and roles.
         -   [ ] view, search, add, edit, delete users
         -   [ ] supervisors page access
         -   [ ] post page to manage all posts form all users
--   [ ] Default admin account
