@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\EditUserRequest;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -30,7 +31,10 @@ class UsersController extends Controller
      */
     public function create()
     {
-        return view('users.form');
+        $title = 'Create user';
+        $user = new User();
+
+        return view('users.form', compact('title', 'user'));
     }
 
     /**
@@ -67,19 +71,32 @@ class UsersController extends Controller
      */
     public function edit($id)
     {
-        //
+        $title = 'Edit user';
+        $user = User::findOrFail($id);
+
+        return view('users.form', compact('title', 'user'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Http\Requests\EditUserRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(EditUserRequest $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $userData = $request->validated();
+
+        if (!empty($request->password)) {
+            $userData['password'] = Hash::make($request->password);
+        }
+
+        $user->update($userData);
+        $request->session()->flash('success', 'User updated successfully!');
+
+        return redirect()->route('users.index');
     }
 
     /**
