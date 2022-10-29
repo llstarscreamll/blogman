@@ -25,6 +25,8 @@ class User extends Authenticatable
      * @todo move user types to enums
      */
     public const BLOGGER_TYPE = 'Blogger';
+    public const SUPERVISOR_TYPE = 'Supervisor';
+    public const ADMIN_TYPE = 'Admin';
 
     /**
      * @var string[]

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateUserRequest;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -28,18 +30,22 @@ class UsersController extends Controller
      */
     public function create()
     {
-        //
+        return view('users.form');
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Http\Requests\CreateUserRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateUserRequest $request)
     {
-        //
+        User::create(['password' => Hash::make($request->password)] + $request->validated());
+
+        $request->session()->flash('success', 'User created successfully!');
+
+        return redirect()->route('users.index');
     }
 
     /**
