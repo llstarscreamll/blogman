@@ -6,7 +6,7 @@ Blog creation and management application with users administration and roles.
 
 -   [x] Users authentication
 -   [x] Users registration
--   [ ] Users management, CRUD stuff plus:
+-   [x] Users management, CRUD stuff plus:
     -   [ ] filter users by type
     -   [ ] batch assign "Blogger"s to "Supervisor"s
 -   [ ] Supervisors page to list out all the "Supervisor" users and the "Blogger" users that are under them
