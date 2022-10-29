@@ -10,7 +10,7 @@ Blog creation and management application with users administration and roles.
 -   [x] Users management, CRUD actions and:
     -   [ ] filter users by type
     -   [ ] batch assign "Blogger"s to "Supervisor"s
--   [ ] Supervisors page to list out all the "Supervisor" users and the "Blogger" users that are under them
+-   [x] Supervisors page to list out all the "Supervisor" users and the "Blogger" users that are under them
 -   [x] Dashboard page with:
     -   [x] count of posts
     -   [x] users count by type
