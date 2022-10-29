@@ -5,7 +5,7 @@ Blog creation and management application with users administration and roles.
 ## Features
 
 -   [ ] Users authentication
--   [ ] Users registration
+-   [x] Users registration
 -   [ ] Users management, CRUD stuff plus:
     -   [ ] filter users by type
     -   [ ] batch assign "Blogger"s to "Supervisor"s
