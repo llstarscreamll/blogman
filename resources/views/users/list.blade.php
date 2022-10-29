@@ -3,20 +3,19 @@
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-header">Users</div>
 
                     <div class="card-body">
-                        <div>
+                        <div class="text-right">
                             <a href="{{ route('users.create') }}">Add user</a>
                         </div>
 
-                        <table>
+                        <table class="mt-4 table">
                             <thead>
                                 <tr>
-                                    <th>First Name</th>
-                                    <th>Last Name</th>
+                                    <th>Full Name</th>
                                     <th>Email</th>
                                     <th>Type</th>
                                     <th>Created at</th>
@@ -26,8 +25,7 @@
                             <tbody>
                                 @foreach ($users as $user)
                                     <tr>
-                                        <td>{{ $user->first_name }}</td>
-                                        <td>{{ $user->last_name }}</td>
+                                        <td><a href="{{ route('users.edit', ['user' => $user->id]) }}">{{ $user->first_name }} {{ $user->last_name }}</a></td>
                                         <td>{{ $user->email }}</td>
                                         <td>{{ $user->type }}</td>
                                         <td>{{ $user->created_at }}</td>
@@ -41,6 +39,10 @@
                                 @endforeach
                             </tbody>
                         </table>
+
+                        <div class="text-right">
+                            {{ $users->links() }}
+                        </div>
                     </div>
                 </div>
             </div>
