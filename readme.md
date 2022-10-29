@@ -4,7 +4,7 @@ Blog creation and management application with users administration and roles.
 
 ## Features
 
--   [ ] Users authentication
+-   [x] Users authentication
 -   [x] Users registration
 -   [ ] Users management, CRUD stuff plus:
     -   [ ] filter users by type
