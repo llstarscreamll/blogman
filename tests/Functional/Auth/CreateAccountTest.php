@@ -4,6 +4,7 @@ namespace Tests\Functional\Auth;
 
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class CreateAccountTest extends TestCase
@@ -44,6 +45,10 @@ class CreateAccountTest extends TestCase
             ->assertSessionDoesntHaveErrors()
             ->assertSee('Logout');
 
+        $createdUser = User::where(['email' => 'bruce_banner@avenger.com'])->first();
+
+        $this->assertAuthenticatedAs($createdUser);
+
         $this->assertDatabaseHas('users', [
             'first_name' => 'Bruce',
             'last_name' => 'Banner',
@@ -51,5 +56,10 @@ class CreateAccountTest extends TestCase
             'type' => User::BLOGGER_TYPE,
             'last_login' => now()->toDateTimeString(),
         ]);
+
+        $this->assertTrue(
+            Hash::check('S3cr3t/avengers', $createdUser->password),
+            'password hashed correctly'
+        );
     }
 }
