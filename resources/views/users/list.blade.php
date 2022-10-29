@@ -20,6 +20,7 @@
                                     <th>Email</th>
                                     <th>Type</th>
                                     <th>Created at</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -30,6 +31,12 @@
                                         <td>{{ $user->email }}</td>
                                         <td>{{ $user->type }}</td>
                                         <td>{{ $user->created_at }}</td>
+                                        <td>
+                                            <form action="{{ route('users.destroy', ['user' => $user->id]) }}" method="POST">
+                                                @method('DELETE') @csrf
+                                                <button type="submit">Delete</button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
