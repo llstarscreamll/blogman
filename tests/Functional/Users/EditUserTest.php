@@ -19,6 +19,8 @@ class EditUserTest extends TestCase
             ->get("users/{$userToEdit->id}/edit")
             ->assertOk()
             ->assertSeeText('Edit user')
+            ->assertSee('method="POST" action="'.route('users.update', ['user' => $userToEdit->id]).'"')
+            ->assertSee("name=\"_method\" value=\"PUT\"")
             ->assertSeeText('First Name')
             ->assertSee("name=\"first_name\" value=\"{$userToEdit->first_name}\"")
             ->assertSeeText('Last Name')

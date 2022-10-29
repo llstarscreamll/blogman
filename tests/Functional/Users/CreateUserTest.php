@@ -17,6 +17,8 @@ class CreateUserTest extends TestCase
             ->get("users/create")
             ->assertOk()
             ->assertSeeText('Create user')
+            ->assertSee('method="POST" action="'.route('users.store').'"')
+            ->assertSee("name=\"_method\" value=\"POST\"")
             ->assertSeeText('First Name')
             ->assertSee('name="first_name"')
             ->assertSeeText('Last Name')

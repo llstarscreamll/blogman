@@ -10,9 +10,7 @@
                     <div class="card-body">
                         <form method="POST" action="{{ $user->exists ? route('users.update', ['user' => $user->id]) : route('users.store') }}" autocomplete="off">
                             @csrf
-                            @if ($user->exists)
-                                @method('PUT')
-                            @endif
+                            @method($user->exists ? 'PUT' : 'POST')
 
                             <div class="form-group row">
                                 <label for="first_name" class="col-md-4 col-form-label text-md-right">{{ __('First Name') }}</label>
