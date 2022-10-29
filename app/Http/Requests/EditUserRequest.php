@@ -30,7 +30,7 @@ class EditUserRequest extends FormRequest
             'first_name' => ['required','string','max:255'],
             'last_name' => ['required','string','max:255'],
             'type' => ['nullable','in:'.implode(',', [User::BLOGGER_TYPE, User::SUPERVISOR_TYPE, User::ADMIN_TYPE])],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email', Rule::unique('users')->ignore($this->user)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->user, 'id')],
             'password' => ['nullable','string','min:6','confirmed'],
         ];
     }
