@@ -18,18 +18,18 @@ Blog creation and management application with users administration and roles.
     -   [x] last login date
     -   [ ] update details
 -   [x] Posts management, CRUD actions
--   [ ] Users ACL:
-    -   [ ] Blogger (default):
+-   [ ] User roles security roles:
+    -   [x] Blogger (default):
         -   [x] dashboard access with their own posts count, authenticated user details, last login date and update their details
-        -   [ ] post page for view, search, add, edit, delete their own blogs
+        -   [x] post page for view, search, add, edit, delete their own blogs
     -   [ ] Supervisor:
         -   [x] dashboard access to all posts count, assigned blogger users count, authenticated user details, last login date and update their details
         -   [ ] view, search, add, edit, delete their own posts
         -   [ ] view, search, add, edit, delete users posts assigned under the supervisor user
         -   [ ] view and search their underneath users
     -   [ ] Admin:
-        -   [ ] full access
-        -   [ ] dashboard access with all posts count, users count by type, authenticated user details, last login date and update their details
+        -   [x] full access
+        -   [x] dashboard access with all posts count, users count by type, authenticated user details, last login date and update their details
         -   [ ] view, search, add, edit, delete users
         -   [ ] supervisors page access
         -   [ ] post page to manage all posts form all users

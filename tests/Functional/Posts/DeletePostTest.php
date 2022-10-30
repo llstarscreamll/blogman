@@ -11,7 +11,7 @@ use Tests\TestCase;
 class DeletePostTest extends TestCase
 {
     /** @test */
-    public function shouldDeletePostSuccessfully()
+    public function shouldDeletePostSuccessfullyWhenUserIsAdmin()
     {
         $postToDelete = factory(Post::class)->create();
 
@@ -23,6 +23,20 @@ class DeletePostTest extends TestCase
             ->assertSee('Post deleted successfully!');
 
         $this->assertDatabaseMissing('posts', ['id' => $postToDelete->id]);
+    }
+
+    /** @test */
+    public function shouldReturnForbiddenWhenPostDoesNotBelongToBlogger()
+    {
+        $postToDelete = factory(Post::class)->create();
+
+        $this
+            ->followingRedirects()
+            ->actingAs(factory(User::class)->create(['type' => User::BLOGGER_TYPE]))
+            ->delete("posts/{$postToDelete->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('posts', ['id' => $postToDelete->id]);
     }
 
     /** @test */

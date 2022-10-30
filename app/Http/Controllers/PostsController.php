@@ -11,11 +11,15 @@ class PostsController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $user = $request->user();
+
         $posts = Post::query()
+            ->when($user->isBlogger(), fn ($q) => $q->whereAuthorId($user->id))
             ->with(['author'])
             ->orderBy('id', 'desc')
             ->paginate(20);
@@ -65,12 +69,17 @@ class PostsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param  Request  $request
      * @param  \App\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function edit(Post $post)
+    public function edit(Request $request, Post $post)
     {
         $title = 'Edit post';
+
+        if ($request->user()->isBlogger() && ! $post->author->is($request->user())) {
+            abort(403, "You are not the post's author");
+        }
 
         return view('posts.form', compact('title', 'post'));
     }
@@ -84,6 +93,10 @@ class PostsController extends Controller
      */
     public function update(CreatePostRequest $request, Post $post)
     {
+        if ($request->user()->isBlogger() && ! $post->author->is($request->user())) {
+            abort(403, "You are not the post's author");
+        }
+
         $post->update($request->validated());
         $request->session()->flash('success', 'Post updated successfully!');
 
@@ -93,11 +106,16 @@ class PostsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param  Request  $request
      * @param  \App\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Post $post)
+    public function destroy(Request $request, Post $post)
     {
+        if ($request->user()->isBlogger() && ! $post->author->is($request->user())) {
+            abort(403, "You are not the post's author");
+        }
+
         $post->delete();
         session()->flash('success', 'Post deleted successfully!');
 

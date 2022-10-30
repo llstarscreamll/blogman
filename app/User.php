@@ -64,4 +64,9 @@ class User extends Authenticatable
     {
         return $this->type === self::SUPERVISOR_TYPE;
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->type === self::ADMIN_TYPE;
+    }
 }

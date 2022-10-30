@@ -36,8 +36,12 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
                         @auth
-                            <li class="nav-item"><a href="{{ route('users.index') }}" class="nav-link">Users</a></li>
-                            <li class="nav-item"><a href="{{ route('supervisors.index') }}" class="nav-link">Supervisors</a></li>
+                            @if (auth()->user()->isAdmin() || auth()->user()->isSupervisor())
+                                <li class="nav-item"><a href="{{ route('users.index') }}" class="nav-link">Users</a></li>
+                            @endif
+                            @if (auth()->user()->isAdmin())
+                                <li class="nav-item"><a href="{{ route('supervisors.index') }}" class="nav-link">Supervisors</a></li>
+                            @endif
                             <li class="nav-item"><a href="{{ route('posts.index') }}" class="nav-link">Posts</a></li>
                         @endauth
                     </ul>

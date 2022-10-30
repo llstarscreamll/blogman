@@ -11,13 +11,13 @@ use Tests\TestCase;
 class ListPostsTest extends TestCase
 {
     /** @test */
-    public function shouldRenderLastTwentyPostsFromStorage()
+    public function shouldRenderLastTwentyPostsForAdmin()
     {
-        $actor = factory(User::class)->create();
+        $user = factory(User::class)->create(['type' => User::ADMIN_TYPE]);
         $expectedPosts = factory(Post::class, 30)->create()->reverse()->take(20);
 
         $this
-            ->actingAs($actor)
+            ->actingAs($user)
             ->get('posts')
             ->assertOk()
             ->assertSeeText('Posts')
@@ -25,6 +25,34 @@ class ListPostsTest extends TestCase
             ->assertSeeInOrder($expectedPosts->map->description->all())
             ->assertSeeInOrder($expectedPosts->map->author->map->name->all())
             ->assertSeeInOrder($expectedPosts->map->crated_at->all());
+    }
+
+    /** @test */
+    public function shouldRenderLastTwentyPostsForBlogger()
+    {
+        $user = factory(User::class)->create(['type' => User::BLOGGER_TYPE]);
+        $expectedPosts = factory(Post::class, 5)->create(['author_id' => $user])->reverse();
+
+        $supervisorPost = factory(Post::class)->create([
+            'name' => 'fake supervisor post',
+            'author_id' => factory(User::class)->create(['type' => User::SUPERVISOR_TYPE])
+        ]);
+        $adminPost = factory(Post::class)->create([
+            'name' => 'fake admin post',
+            'author_id' => factory(User::class)->create(['type' => User::ADMIN_TYPE])
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->get('posts')
+            ->assertOk()
+            ->assertSeeText('Posts')
+            ->assertSeeInOrder($expectedPosts->map->name->all())
+            ->assertSeeInOrder($expectedPosts->map->description->all())
+            ->assertSeeInOrder($expectedPosts->map->author->map->name->all())
+            ->assertSeeInOrder($expectedPosts->map->crated_at->all())
+            ->assertDontSee($adminPost->name)
+            ->assertDontSee($supervisorPost->name);
     }
 
     /** @test */
