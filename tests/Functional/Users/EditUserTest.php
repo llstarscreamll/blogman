@@ -40,22 +40,46 @@ class EditUserTest extends TestCase
     }
 
     /** @test */
-    public function shouldEditUserSuccessfully()
+    public function shouldRenderForbiddenFormWhenUserIsBlogger()
     {
         $userToEdit = factory(User::class)->create();
-        $payload = factory(User::class)->make(['type' => User::SUPERVISOR_TYPE]);
+        $blogger = factory(User::class)->create(['type' => User::BLOGGER_TYPE]);
+
+        $this
+            ->actingAs($blogger)
+            ->get("users/{$userToEdit->id}/edit")
+            ->assertForbidden();
+    }
+
+    /** @test */
+    public function shouldRenderForbiddenFormWhenUserIsSupervisor()
+    {
+        $userToEdit = factory(User::class)->create();
+        $blogger = factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]);
+
+        $this
+            ->actingAs($blogger)
+            ->get("users/{$userToEdit->id}/edit")
+            ->assertForbidden();
+    }
+
+    /** @test */
+    public function shouldReturnOkWhenUserIsAdmin()
+    {
+        $originalUser = factory(User::class)->create();
+        $payload = factory(User::class)->make();
 
         Carbon::setTestNow('2022-06-24 16:00:00');
 
         $this
             ->followingRedirects()
-            ->actingAs(factory(User::class)->create())
-            ->put("users/{$userToEdit->id}", $payload->toArray() + ['password' => 'S3cr3t#123', 'password_confirmation' => 'S3cr3t#123'])
+            ->actingAs(factory(User::class)->create(['type' => User::ADMIN_TYPE]))
+            ->put("users/{$originalUser->id}", $payload->toArray() + ['password' => 'S3cr3t#123', 'password_confirmation' => 'S3cr3t#123'])
             ->assertOk()
             ->assertSee('User updated successfully!');
 
         $this->assertDatabaseHas('users', [
-            'id' => $userToEdit->id,
+            'id' => $originalUser->id,
             'first_name' => $payload->first_name,
             'last_name' => $payload->last_name,
             'type' => $payload->type,
@@ -63,12 +87,68 @@ class EditUserTest extends TestCase
             'updated_at' => now()->toDateTimeString()
         ]);
 
-        $this->assertTrue(Hash::check('S3cr3t#123', $userToEdit->refresh()->password));
+        $this->assertTrue(Hash::check('S3cr3t#123', $originalUser->refresh()->password));
+    }
+
+    /** @test */
+    public function shouldReturnForbiddenWhenUserIsSupervisor()
+    {
+        $originalUser = factory(User::class)->create();
+        $payload = factory(User::class)->make();
+
+        Carbon::setTestNow('2022-06-24 16:00:00');
+
+        $this
+            ->followingRedirects()
+            ->actingAs(factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]))
+            ->put("users/{$originalUser->id}", $payload->toArray() + ['password' => 'S3cr3t#123', 'password_confirmation' => 'S3cr3t#123'])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $originalUser->id,
+            'first_name' => $originalUser->first_name,
+            'last_name' => $originalUser->last_name,
+            'type' => $originalUser->type,
+            'email' => $originalUser->email,
+            'updated_at' => $originalUser->updated_at
+        ]);
+
+        $this->assertTrue(Hash::check('secret', $originalUser->password));
+    }
+
+    /** @test */
+    public function shouldReturnForbiddenWhenUserIsBlogger()
+    {
+        $originalUser = factory(User::class)->create();
+        $payload = factory(User::class)->make();
+
+        Carbon::setTestNow('2022-06-24 16:00:00');
+
+        $this
+            ->followingRedirects()
+            ->actingAs(factory(User::class)->create(['type' => User::BLOGGER_TYPE]))
+            ->put("users/{$originalUser->id}", $payload->toArray() + ['password' => 'S3cr3t#123', 'password_confirmation' => 'S3cr3t#123'])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $originalUser->id,
+            'first_name' => $originalUser->first_name,
+            'last_name' => $originalUser->last_name,
+            'type' => $originalUser->type,
+            'email' => $originalUser->email,
+            'updated_at' => $originalUser->updated_at
+        ]);
+
+        $this->assertTrue(Hash::check('secret', $originalUser->password));
     }
 
     /** @test */
     public function shouldRedirectToLogInPageWhenUserIsUnauthenticated()
     {
-        $this->get('users')->assertRedirect('/login');
+        $userToEdit = factory(User::class)->create();
+
+        $this
+            ->get("users/{$userToEdit->id}/edit")
+            ->assertRedirect('/login');
     }
 }

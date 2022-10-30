@@ -26,6 +26,23 @@ class DeletePostTest extends TestCase
     }
 
     /** @test */
+    public function shouldDeletePostSuccessfullyWhenPostBelongsToSupervisorBlogger()
+    {
+        $postToDelete = factory(Post::class)->create();
+        $supervisor = factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]);
+        $supervisor->bloggers()->attach($postToDelete->author);
+
+        $this
+            ->followingRedirects()
+            ->actingAs($supervisor)
+            ->delete("posts/{$postToDelete->id}")
+            ->assertOk()
+            ->assertSee('Post deleted successfully!');
+
+        $this->assertDatabaseMissing('posts', ['id' => $postToDelete->id]);
+    }
+
+    /** @test */
     public function shouldReturnForbiddenWhenPostDoesNotBelongToBlogger()
     {
         $postToDelete = factory(Post::class)->create();
@@ -33,6 +50,20 @@ class DeletePostTest extends TestCase
         $this
             ->followingRedirects()
             ->actingAs(factory(User::class)->create(['type' => User::BLOGGER_TYPE]))
+            ->delete("posts/{$postToDelete->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('posts', ['id' => $postToDelete->id]);
+    }
+
+    /** @test */
+    public function shouldReturnForbiddenWhenPostDoesNotBelongToSupervisorBlogger()
+    {
+        $postToDelete = factory(Post::class)->create();
+
+        $this
+            ->followingRedirects()
+            ->actingAs(factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]))
             ->delete("posts/{$postToDelete->id}")
             ->assertForbidden();
 

@@ -18,18 +18,29 @@ Blog creation and management application with users administration and roles.
     -   [x] last login date
     -   [ ] update details
 -   [x] Posts management, CRUD actions
--   [ ] User roles security roles:
+-   [x] User roles security roles:
     -   [x] Blogger (default):
         -   [x] dashboard access with their own posts count, authenticated user details, last login date and update their details
         -   [x] post page for view, search, add, edit, delete their own blogs
-    -   [ ] Supervisor:
-        -   [x] dashboard access to all posts count, assigned blogger users count, authenticated user details, last login date and update their details
-        -   [ ] view, search, add, edit, delete their own posts
-        -   [ ] view, search, add, edit, delete users posts assigned under the supervisor user
-        -   [ ] view and search their underneath users
-    -   [ ] Admin:
+    -   [x] Supervisor:
+        -   [x] dashboard access to assigned blogger posts count, assigned blogger users count, authenticated user details, last login date and update their details
+        -   [x] view, search, add, edit, delete their own posts
+        -   [x] view, search, edit, delete users posts assigned under the supervisor
+        -   [x] view and search their underneath users
+    -   [x] Admin:
         -   [x] full access
         -   [x] dashboard access with all posts count, users count by type, authenticated user details, last login date and update their details
-        -   [ ] view, search, add, edit, delete users
-        -   [ ] supervisors page access
-        -   [ ] post page to manage all posts form all users
+        -   [x] view, search, add, edit, delete users
+        -   [x] supervisors page access
+        -   [x] post page to manage all posts form all users
+
+## Running tests
+
+You need a mysql database to run the test suite with the credentials specified in `.env.testing`, then:
+
+```
+git clone https://github.com/llstarscreamll/blogman.git
+cd blogman
+composer install
+vendor/bin/phpunit
+```

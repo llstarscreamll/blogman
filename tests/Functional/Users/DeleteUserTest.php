@@ -25,8 +25,34 @@ class DeleteUserTest extends TestCase
     }
 
     /** @test */
+    public function shouldRenderForbiddenWhenUserIsBlogger()
+    {
+        $userToDelete = factory(User::class)->create();
+        $blogger = factory(User::class)->create(['type' => User::BLOGGER_TYPE]);
+
+        $this
+            ->actingAs($blogger)
+            ->delete("users/{$userToDelete->id}")
+            ->assertForbidden();
+    }
+
+    /** @test */
+    public function shouldRenderForbiddenWhenUserIsSupervisor()
+    {
+        $userToDelete = factory(User::class)->create();
+        $blogger = factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]);
+
+        $this
+            ->actingAs($blogger)
+            ->delete("users/{$userToDelete->id}")
+            ->assertForbidden();
+    }
+
+    /** @test */
     public function shouldRedirectToLogInPageWhenUserIsUnauthenticated()
     {
-        $this->get('users')->assertRedirect('/login');
+        $userToDelete = factory(User::class)->create();
+
+        $this->delete("users/{$userToDelete->id}")->assertRedirect('/login');
     }
 }

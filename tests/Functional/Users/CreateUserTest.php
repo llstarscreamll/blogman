@@ -38,7 +38,25 @@ class CreateUserTest extends TestCase
     }
 
     /** @test */
-    public function shouldCreateUserSuccessfully()
+    public function shouldRenderForbiddenFormWhenUserIsBlogger()
+    {
+        $this
+            ->actingAs(factory(User::class)->create(['type' => User::BLOGGER_TYPE]))
+            ->get("users/create")
+            ->assertForbidden();
+    }
+
+    /** @test */
+    public function shouldRenderForbiddenFormWhenUserIsSupervisor()
+    {
+        $this
+            ->actingAs(factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]))
+            ->get("users/create")
+            ->assertForbidden();
+    }
+
+    /** @test */
+    public function shouldCreateUserSuccessfullyWhenUserIsAdmin()
     {
         Carbon::setTestNow('2022-06-24 16:00:00');
         $userToCreate = factory(User::class)->make();
@@ -64,8 +82,38 @@ class CreateUserTest extends TestCase
     }
 
     /** @test */
+    public function shouldReturnForbiddenWhenUserIsBlogger()
+    {
+        $userToCreate = factory(User::class)->make();
+
+        $this
+            ->followingRedirects()
+            ->from('users/create')
+            ->actingAs(factory(User::class)->create(['type' => User::BLOGGER_TYPE]))
+            ->post('users', $userToCreate->toArray() + ['password' => 'S3cr3t#123', 'password_confirmation' => 'S3cr3t#123'])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('users', ['email' => $userToCreate->email]);
+    }
+
+    /** @test */
+    public function shouldReturnForbiddenWhenUserIsSupervisor()
+    {
+        $userToCreate = factory(User::class)->make();
+
+        $this
+            ->followingRedirects()
+            ->from('users/create')
+            ->actingAs(factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]))
+            ->post('users', $userToCreate->toArray() + ['password' => 'S3cr3t#123', 'password_confirmation' => 'S3cr3t#123'])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('users', ['email' => $userToCreate->email]);
+    }
+
+    /** @test */
     public function shouldRedirectToLogInPageWhenUserIsUnauthenticated()
     {
-        $this->get('users')->assertRedirect('/login');
+        $this->get('users/create')->assertRedirect('/login');
     }
 }

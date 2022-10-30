@@ -42,6 +42,13 @@ class HomeController extends Controller
         return Post::when(
             $user->isBlogger(),
             fn ($q) => $q->whereAuthorId($user->id)
+        )
+        ->when(
+            $user->isSupervisor(),
+            fn ($q) => $q->whereIn('author_id', $user->bloggers()
+                ->where('type', User::BLOGGER_TYPE)
+                ->pluck('users.id')
+                ->push($user->id))
         )->count();
     }
 
@@ -51,17 +58,31 @@ class HomeController extends Controller
             return [];
         }
 
-        $userTypesToFilter = $user->isSupervisor()
-            ? [User::BLOGGER_TYPE]
-            : [User::BLOGGER_TYPE, User::SUPERVISOR_TYPE, User::ADMIN_TYPE];
+        return $user->isSupervisor()
+            ? $this->getUserStaticsForSupervisor($user)
+            : $this->getUserStaticsForAdmin();
+    }
 
-        $stringBinding = implode(',', array_pad([], count($userTypesToFilter), "?"));
-
+    private function getUserStaticsForAdmin(): array
+    {
         return DB::select(DB::raw(<<<MYSQL
         SELECT type name, count(id) count
         FROM users
-        WHERE type in ($stringBinding)
+        WHERE type in (?,?,?)
         GROUP BY type;
-        MYSQL), $userTypesToFilter);
+        MYSQL), [User::BLOGGER_TYPE, User::SUPERVISOR_TYPE, User::ADMIN_TYPE]);
+    }
+
+    private function getUserStaticsForSupervisor(User $supervisor): array
+    {
+        return [
+            (object) [
+                'name' => User::BLOGGER_TYPE,
+                'count' => $supervisor->bloggers()
+                ->where('type', User::BLOGGER_TYPE)
+                ->pluck('users.id')
+                ->count()
+            ]
+        ];
     }
 }

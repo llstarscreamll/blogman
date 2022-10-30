@@ -20,6 +20,7 @@ class PostsController extends Controller
 
         $posts = Post::query()
             ->when($user->isBlogger(), fn ($q) => $q->whereAuthorId($user->id))
+            ->when($user->isSupervisor(), fn ($q) => $q->whereIn('author_id', $user->bloggers()->pluck('users.id')->push($user->id)))
             ->with(['author'])
             ->orderBy('id', 'desc')
             ->paginate(20);
@@ -77,8 +78,8 @@ class PostsController extends Controller
     {
         $title = 'Edit post';
 
-        if ($request->user()->isBlogger() && ! $post->author->is($request->user())) {
-            abort(403, "You are not the post's author");
+        if (! $this->userCanAccessPost($request->user(), $post)) {
+            abort(403, "You can't see this post");
         }
 
         return view('posts.form', compact('title', 'post'));
@@ -93,8 +94,8 @@ class PostsController extends Controller
      */
     public function update(CreatePostRequest $request, Post $post)
     {
-        if ($request->user()->isBlogger() && ! $post->author->is($request->user())) {
-            abort(403, "You are not the post's author");
+        if (! $this->userCanAccessPost($request->user(), $post)) {
+            abort(403, "You can't see this post");
         }
 
         $post->update($request->validated());
@@ -112,13 +113,30 @@ class PostsController extends Controller
      */
     public function destroy(Request $request, Post $post)
     {
-        if ($request->user()->isBlogger() && ! $post->author->is($request->user())) {
-            abort(403, "You are not the post's author");
+        if (! $this->userCanAccessPost($request->user(), $post)) {
+            abort(403, "You can't see this post");
         }
 
         $post->delete();
         session()->flash('success', 'Post deleted successfully!');
 
         return redirect()->route('posts.index');
+    }
+
+    private function userCanAccessPost($user, $post): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->isBlogger() && ! $post->author->is($user)) {
+            return false;
+        }
+
+        if ($user->isSupervisor() && ! $user->bloggers()->pluck('users.id')->push($user->id)->contains($post->author_id)) {
+            return false;
+        }
+
+        return true;
     }
 }

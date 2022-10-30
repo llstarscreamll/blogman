@@ -17,6 +17,10 @@ class SupervisorsController extends Controller
      */
     public function __invoke(Request $request)
     {
+        if (! $request->user()->isAdmin()) {
+            abort(403, "You don't have permission to access this resource.");
+        }
+
         $supervisors = User::with(['bloggers'])
             ->where('type', User::SUPERVISOR_TYPE)
             ->orderBy('id', 'desc')

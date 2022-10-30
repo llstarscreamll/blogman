@@ -44,6 +44,24 @@ class ListSupervisorsTest extends TestCase
     }
 
     /** @test */
+    public function shouldRedirectForbiddenWhenUserIsBlogger()
+    {
+        $this
+            ->actingAs(factory(User::class)->create(['type' => User::BLOGGER_TYPE]))
+            ->get('supervisors')
+            ->assertForbidden();
+    }
+
+    /** @test */
+    public function shouldRedirectForbiddenWhenUserIsSupervisor()
+    {
+        $this
+            ->actingAs(factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]))
+            ->get('supervisors')
+            ->assertForbidden();
+    }
+
+    /** @test */
     public function shouldRedirectToLogInPageWhenUserIsUnauthenticated()
     {
         $this->get('supervisors')->assertRedirect('/login');

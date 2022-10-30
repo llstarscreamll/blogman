@@ -13,11 +13,20 @@ class UsersController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $user = $request->user();
+
+        if ($user->isBlogger()) {
+            abort(403, "You don't have permission to access this resource.");
+        }
+
         $users = User::query()
+            ->when($user->isSupervisor(), fn ($q) => $q->whereIn('id', $user->bloggers()->pluck('users.id')->push($user->id)))
+            ->where('id', '!=', $user->id)
             ->orderBy('id', 'desc')
             ->paginate(20);
 
@@ -27,10 +36,15 @@ class UsersController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
+        if (! $request->user()->isAdmin()) {
+            abort(403, "You don't have permission to access this resource.");
+        }
+
         $title = 'Create user';
         $user = new User();
 
@@ -45,6 +59,10 @@ class UsersController extends Controller
      */
     public function store(CreateUserRequest $request)
     {
+        if (! $request->user()->isAdmin()) {
+            abort(403, "You don't have permission to access this resource.");
+        }
+
         User::create(['password' => Hash::make($request->password)] + $request->validated());
 
         $request->session()->flash('success', 'User created successfully!');
@@ -66,11 +84,16 @@ class UsersController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param  Request $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
+        if (! $request->user()->isAdmin()) {
+            abort(403, "You don't have permission to access this resource.");
+        }
+
         $title = 'Edit user';
         $user = User::findOrFail($id);
 
@@ -86,6 +109,10 @@ class UsersController extends Controller
      */
     public function update(EditUserRequest $request, $id)
     {
+        if (! $request->user()->isAdmin()) {
+            abort(403, "You don't have permission to access this resource.");
+        }
+
         $user = User::findOrFail($id);
         $userData = $request->validated();
 
@@ -102,11 +129,16 @@ class UsersController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param  Request $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        if (! $request->user()->isAdmin()) {
+            abort(403, "You don't have permission to access this resource.");
+        }
+
         $user = User::findOrFail($id);
 
         $user->delete();

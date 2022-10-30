@@ -30,7 +30,7 @@ class EditPostTest extends TestCase
     }
 
     /** @test */
-    public function shouldReturnForbiddenWhenUserIsBloggerAndPostDoesNotBelongToUser()
+    public function shouldReturnForbiddenFormWhenPostDoesNotBelongToBlogger()
     {
         $postToEdit = factory(Post::class)->create();
 
@@ -38,6 +38,30 @@ class EditPostTest extends TestCase
             ->actingAs(factory(User::class)->create(['type' => User::BLOGGER_TYPE]))
             ->get("posts/{$postToEdit->id}/edit")
             ->assertForbidden();
+    }
+
+    /** @test */
+    public function shouldReturnForbiddenFormWhenPostDoesNotBelongToSupervisor()
+    {
+        $postToEdit = factory(Post::class)->create();
+
+        $this
+            ->actingAs(factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]))
+            ->get("posts/{$postToEdit->id}/edit")
+            ->assertForbidden();
+    }
+
+    /** @test */
+    public function shouldRenderFormWhenPostBelongToSupervisorBlogger()
+    {
+        $postToEdit = factory(Post::class)->create();
+        $supervisor = factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]);
+        $supervisor->bloggers()->attach($postToEdit->author);
+
+        $this
+            ->actingAs($supervisor)
+            ->get("posts/{$postToEdit->id}/edit")
+            ->assertOk();
     }
 
     /** @test */
@@ -84,6 +108,55 @@ class EditPostTest extends TestCase
             'name' => $originalPost->name,
             'description' => $originalPost->description,
             'updated_at' => $originalPost->updated_at
+        ]);
+    }
+
+    /** @test */
+    public function shouldReturnForbiddenWhenPostDoesNotBelongToSupervisor()
+    {
+        $originalPost = factory(Post::class)->create();
+        $changes = factory(Post::class)->make();
+
+        Carbon::setTestNow('2022-06-24 16:00:00');
+
+        $this
+            ->followingRedirects()
+            ->actingAs(factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]))
+            ->put("posts/{$originalPost->id}", $changes->toArray())
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $originalPost->id,
+            'author_id' => $originalPost->author_id,
+            'name' => $originalPost->name,
+            'description' => $originalPost->description,
+            'updated_at' => $originalPost->updated_at
+        ]);
+    }
+
+    /** @test */
+    public function shouldReturnOkWhenPostBelongsToSupervisorBlogger()
+    {
+        $originalPost = factory(Post::class)->create();
+        $changes = factory(Post::class)->make();
+
+        $supervisor = factory(User::class)->create(['type' => User::SUPERVISOR_TYPE]);
+        $supervisor->bloggers()->attach($originalPost->author);
+
+        Carbon::setTestNow('2022-06-24 16:00:00');
+
+        $this
+            ->followingRedirects()
+            ->actingAs($supervisor)
+            ->put("posts/{$originalPost->id}", $changes->toArray())
+            ->assertOk();
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $originalPost->id,
+            'author_id' => $originalPost->author_id,
+            'name' => $changes->name,
+            'description' => $changes->description,
+            'updated_at' => now()
         ]);
     }
 

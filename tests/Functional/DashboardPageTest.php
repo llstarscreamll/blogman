@@ -17,16 +17,19 @@ class DashboardPageTest extends TestCase
         parent::setUp();
 
         $this->blogger = factory(User::class)->create(['type' => User::BLOGGER_TYPE]);
-        factory(User::class, 5)->create(['type' => User::BLOGGER_TYPE]);
         $this->supervisor = factory(User::class, 3)->create(['type' => User::SUPERVISOR_TYPE])->first();
         $this->admin = factory(User::class, 7)->create(['type' => User::ADMIN_TYPE])->first();
+        $this->supervisor->bloggers()->sync(factory(User::class, 5)->create(['type' => User::BLOGGER_TYPE]));
 
-        factory(Post::class, 30)->create(['author_id' => $this->blogger]);
+        factory(Post::class, 2)->create(['author_id' => $this->supervisor->bloggers->first()]);
+        factory(Post::class, 2)->create(['author_id' => $this->supervisor->bloggers->last()]);
+        factory(Post::class, 2)->create(['author_id' => $this->supervisor]);
+        factory(Post::class, 24)->create(['author_id' => $this->blogger]);
         factory(Post::class, 20)->create(['author_id' => $this->admin]);
     }
 
     /** @test */
-    public function shouldRenderDashboardForBloggerUser()
+    public function shouldRenderDashboardForBlogger()
     {
         $this
             ->actingAs($this->blogger)
@@ -40,7 +43,7 @@ class DashboardPageTest extends TestCase
             ->assertSee($this->blogger->name)
             ->assertSee($this->blogger->email)
             ->assertSee($this->blogger->last_login)
-            ->assertSee("Total posts: 30")
+            ->assertSee("Total posts: 24")
             ->assertDontSee("Total bloggers: 6")
             ->assertDontSee("Total supervisors: 3")
             ->assertDontSee("Total admins: 7")
@@ -61,11 +64,10 @@ class DashboardPageTest extends TestCase
             ->assertSee($this->supervisor->name)
             ->assertSee($this->supervisor->email)
             ->assertSee($this->supervisor->last_login)
-            ->assertSee("Total posts: 50")
-            ->assertSee("Total bloggers: 6")
+            ->assertSee("Total posts: 6")
+            ->assertSee("Total bloggers: 5")
             ->assertDontSee("Total supervisors: 3")
-            ->assertDontSee("Total admins: 7")
-        ;
+            ->assertDontSee("Total admins: 7");
     }
 
     /** @test */
