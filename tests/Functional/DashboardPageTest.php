@@ -8,6 +8,7 @@ use Tests\TestCase;
 
 class DashboardPageTest extends TestCase
 {
+    private User $admin;
     private User $blogger;
     private User $supervisor;
 
@@ -18,10 +19,10 @@ class DashboardPageTest extends TestCase
         $this->blogger = factory(User::class)->create(['type' => User::BLOGGER_TYPE]);
         factory(User::class, 5)->create(['type' => User::BLOGGER_TYPE]);
         $this->supervisor = factory(User::class, 3)->create(['type' => User::SUPERVISOR_TYPE])->first();
-        $this->admins = factory(User::class, 7)->create(['type' => User::ADMIN_TYPE]);
+        $this->admin = factory(User::class, 7)->create(['type' => User::ADMIN_TYPE])->first();
 
         factory(Post::class, 30)->create(['author_id' => $this->blogger]);
-        factory(Post::class, 20)->create(['author_id' => $this->admins->first()]);
+        factory(Post::class, 20)->create(['author_id' => $this->admin]);
     }
 
     /** @test */
@@ -63,6 +64,27 @@ class DashboardPageTest extends TestCase
             ->assertSee("Total bloggers: 6")
             ->assertDontSee("Total supervisors: 3")
             ->assertDontSee("Total admins: 7")
+        ;
+    }
+
+    /** @test */
+    public function shouldRenderDashboardForAdmin()
+    {
+        $this
+            ->actingAs($this->admin)
+            ->get('/home')
+            ->assertStatus(200)
+            ->assertSee("Welcome {$this->admin->first_name}!")
+            ->assertSeeText(config('app.name'))
+            ->assertSee('Users')
+            ->assertSee('Posts')
+            ->assertSee($this->admin->name)
+            ->assertSee($this->admin->email)
+            ->assertSee($this->admin->last_login)
+            ->assertSee("Total posts: 50")
+            ->assertSee("Total bloggers: 6")
+            ->assertSee("Total supervisors: 3")
+            ->assertSee("Total admins: 7")
         ;
     }
 }
