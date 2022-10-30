@@ -59,4 +59,9 @@ class User extends Authenticatable
     {
         return $this->type === self::BLOGGER_TYPE;
     }
+
+    public function isSupervisor(): bool
+    {
+        return $this->type === self::SUPERVISOR_TYPE;
+    }
 }

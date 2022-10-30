@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Post;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,13 +31,13 @@ class HomeController extends Controller
 
         $statistics = [
             'user_posts_count' => $this->getPostsCountForUser($user),
-            'user_types' => $user->isBlogger() ? [] : $this->getUserStatistics(),
+            'user_types' => $this->getUserStatisticsForUser($user),
         ];
 
         return view('home', compact('statistics'));
     }
 
-    private function getPostsCountForUser($user): int
+    private function getPostsCountForUser(User $user): int
     {
         return Post::when(
             $user->isBlogger(),
@@ -44,12 +45,23 @@ class HomeController extends Controller
         )->count();
     }
 
-    private function getUserStatistics(): array
+    private function getUserStatisticsForUser(User $user): array
     {
+        if ($user->isBlogger()) {
+            return [];
+        }
+
+        $userTypesToFilter = $user->isSupervisor()
+            ? [User::BLOGGER_TYPE]
+            : [User::BLOGGER_TYPE, User::SUPERVISOR_TYPE, User::ADMIN_TYPE];
+
+        $stringBinding = implode(',', array_pad([], count($userTypesToFilter), "?"));
+
         return DB::select(DB::raw(<<<MYSQL
         SELECT type name, count(id) count
         FROM users
+        WHERE type in ($stringBinding)
         GROUP BY type;
-        MYSQL));
+        MYSQL), $userTypesToFilter);
     }
 }

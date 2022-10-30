@@ -23,7 +23,7 @@ Blog creation and management application with users administration and roles.
         -   [x] dashboard access with their own posts count, authenticated user details, last login date and update their details
         -   [ ] post page for view, search, add, edit, delete their own blogs
     -   [ ] Supervisor:
-        -   [ ] dashboard access with underneath posts users count, underneath users count by type, authenticated user details, last login date and update their details
+        -   [x] dashboard access to all posts count, assigned blogger users count, authenticated user details, last login date and update their details
         -   [ ] view, search, add, edit, delete their own posts
         -   [ ] view, search, add, edit, delete users posts assigned under the supervisor user
         -   [ ] view and search their underneath users
