@@ -26,15 +26,30 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+        $user = $request->user();
+
         $statistics = [
-            'user_posts_count' => Post::count(),
-            'user_types' => DB::select(DB::raw(<<<MYSQL
-                SELECT type name, count(id) count
-                FROM users
-                GROUP BY type;
-                MYSQL))
+            'user_posts_count' => $this->getPostsCountForUser($user),
+            'user_types' => $user->isBlogger() ? [] : $this->getUserStatistics(),
         ];
 
         return view('home', compact('statistics'));
+    }
+
+    private function getPostsCountForUser($user): int
+    {
+        return Post::when(
+            $user->isBlogger(),
+            fn ($q) => $q->whereAuthorId($user->id)
+        )->count();
+    }
+
+    private function getUserStatistics(): array
+    {
+        return DB::select(DB::raw(<<<MYSQL
+        SELECT type name, count(id) count
+        FROM users
+        GROUP BY type;
+        MYSQL));
     }
 }
